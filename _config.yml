@@ -1,6 +1,6 @@
-title:            Data Warlord
-description:      A jekyll theme. Because I scribble.
-url:              # Site url.
+title:            The Data Warlord
+description:      Data related knowledge and observations
+url:              thedatawarlord.net
 signoff:          # Your name.
 disqus_shortname: # disqus comment thread for post header options. ( leave blank if unwanted. )
 facebook_appid:   # appid for like button, remove from /_includes/share.html if unwanted.
@@ -9,15 +9,11 @@ google_analytics: # set tracking, remove from /javascripts/basic.js if unwanted.
 links:
   - name:         About
     url:          /about
-  - name:         Blog
-    url:          http://muan.co
-    external:     true
   - name:         Email
-    url:          mailto:hello@muan.co
+    url:          mailto:joseph.d.myers@gmail.com
     external:     true
-  - name:         GitHub
-    url:          http://github.com/muan
-    external:     true
+  - name:         Presentations
+    url:          /presentations
 highlighter:      pygments
 permalink:        pretty
 markdown:         redcarpet
