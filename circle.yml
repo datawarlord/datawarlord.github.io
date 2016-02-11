@@ -1,0 +1,11 @@
+deployment:
+  production:
+    branch: master
+    commands:
+      - git config --global user.name "CircleCI"
+      - git config --global user.email "noone@okcsharp.net"
+      - sed -i'' "s~https://github.com/datawarlord/datawarlord.github.io.git~https://${GH_TOKEN}:x-oauth-basic@github.com/datawarlord/datawarlord.github.io.git~" _config.yml
+      - rm -rf .deploy_git/
+      - hexo clean
+      - hexo generate
+      - hexo deploy
