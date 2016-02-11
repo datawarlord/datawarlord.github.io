@@ -176,7 +176,7 @@ ga('send', 'pageview');
 </tbody>
 </table>
 <p>Current SQL Server 2008/2012/2014 recommendations are to use datetime2, date, and time types for you schema and use the lowest precision possible.  For the point-of-sale application mentioned above, I can easily settle for knowing to the second when an event took place.  With storage being so cheap, the difference between a couple of bytes might not make a lot of sense but the difference in those bytes over thousands or millions of rows and their impact on performance tuning.  If you only need to store the date, then just use the date data type which will store the date without the time and can greatly simply searches where the time of day isn’t important.</p>
-<p>Datetime is now deprecated but don’t go too far with the precision of datetime2 unless needed. Up to 2 bytes of saving per column may seem minimal but small savings add up as applications grow in scale and what’s the point of storing data that you don’t need and will never use. </p>
+<p>Datetime is now deprecated but don’t go too far with the precision of datetime2 unless needed. Up to 2 bytes of saving per column may seem minimal but small savings add up as applications grow in scale.  What’s the point of storing data that you don’t need and will never use. </p>
 
       
     </div>
