@@ -72,3 +72,5 @@ deploy:
   repository: https://github.com/datawarlord/datawarlord.github.io
   branch: master
   
+ # Disqus
+disqus_shortname: datawarlord
