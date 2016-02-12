@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives | The Data Warlord</title>
+  <title>Integers | The Data Warlord</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="The Data Warlord">
-<meta property="og:url" content="http://datawarlord.github.io/public/archives/index.html">
+  <meta name="description" content="Following up on my first blog post, a former cohort of mine, Michael (SQLSpellBook.com) pointed out that the same principle also applies to integers and he couldn’t be more right.  Oh, how many times">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Integers">
+<meta property="og:url" content="http://datawarlord.github.io/public/2016/02/12/Integers/index.html">
 <meta property="og:site_name" content="The Data Warlord">
-<meta property="og:description">
+<meta property="og:description" content="Following up on my first blog post, a former cohort of mine, Michael (SQLSpellBook.com) pointed out that the same principle also applies to integers and he couldn’t be more right.  Oh, how many times">
+<meta property="og:updated_time" content="2016-02-12T21:47:50.445Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="The Data Warlord">
-<meta name="twitter:description">
+<meta name="twitter:title" content="Integers">
+<meta name="twitter:description" content="Following up on my first blog post, a former cohort of mine, Michael (SQLSpellBook.com) pointed out that the same principle also applies to integers and he couldn’t be more right.  Oh, how many times">
 <meta name="twitter:creator" content="@syxxpac023">
   
     <link rel="alternate" href="/atom.xml" title="The Data Warlord" type="application/atom+xml">
@@ -68,7 +69,7 @@ ga('send', 'pageview');
           <li><a class=""
                  href="/public/index.html">Home</a></li>
         
-          <li><a class="active"
+          <li><a class=""
                  href="/public/archives/">Archives</a></li>
         
       </ul>
@@ -94,61 +95,119 @@ ga('send', 'pageview');
 
     <div class="row">
         <div class="col-sm-8 blog-main">
-          
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/public/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
+          <article id="post-Integers" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
     
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/12/Integers/">Integers</a>
+    <h1 class="article-title" itemprop="name">
+      Integers
     </h1>
   
 
 
+  </header>
+
+  <div class="article-meta">
     <div class="article-datetime">
-  <a href="/public/2016/02/12/Integers/" class="archive-article-date"><time datetime="2016-02-12T23:07:49.000Z" itemprop="datePublished">February 12th</time></a>
+  <a href="/public/2016/02/12/Integers/" class="article-date"><time datetime="2016-02-12T23:07:49.000Z" itemprop="datePublished">2016-02-12</time></a>
 </div>
 
-  </header>
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Following up on my first blog post, a former cohort of mine, Michael (<a href="http://SQLSpellBook.com" target="_blank" rel="external">SQLSpellBook.com</a>) pointed out that the same principle also applies to integers and he couldn’t be more right.  Oh, how many times I’ve seen this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE Table LookupTable&#10;(&#9;LookupTableID bigint identity(1,1),&#10;&#9;LookupName nvarchar(255) NOT NULL&#10;)</span><br></pre></td></tr></table></figure>
+<p>Of course, the major assumption here is that you have lookup tables which I’ve not always been so blessed to have inherited from my predecessors.  The point I’d like to illustrate here is that you’re pretty unlikely to need an integer this big and if you do you might need to rethink your use of a lookup table.  So what type should we use? </p>
+<p>A brief look at each data type:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Range</th>
+<th>Storage (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tinyint</td>
+<td>0-255</td>
+<td>1</td>
+</tr>
+<tr>
+<td>smallint</td>
+<td>-32,768 to 32,767</td>
+<td>2</td>
+</tr>
+<tr>
+<td>int</td>
+<td>-2,147,483,648 to 2,147,483,647</td>
+<td>4</td>
+</tr>
+<tr>
+<td>bigint</td>
+<td>-2^63 to 2^63 -1</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>That’s a little north of <strong>9 quintillion</strong> if you’re going to use a <em>bigint</em>.  In general, for a lookup table you’re wasting 6-7 bytes per use and if you have a large table referencing this lookup then that can be a LOT of wasted space.  Also, since it’s likely to be a foreign key in the referencing table, then there’s a great chance that it’s indexed which further adds to the waste of space.</p>
+<p>Another example is storing sports statistics for football games.  For score, using <em>tinyint</em> is sufficient because no one usually scores 255 points in a game.  But what about yards gained?  That can definitely go over 255 but you’re not likely to see a player or team gain over 32,767 yards in a game so a <em>smallint</em> is the way to go.</p>
+<p>Just another tip to save a little space and maybe even speed up your DB.</p>
+<p>Next up…. bits n booleans.</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://datawarlord.github.io/public/2016/02/12/Integers/" data-id="cikk7tknh0009oowk1ul4h4gi" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+        <a href="http://datawarlord.github.io/public/2016/02/12/Integers/#disqus_thread" class="article-comment-link">
+          <i class="fa fa-comment"></i> Comments
+        </a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Best-Practices/">Best Practices</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Data-Types/">Data Types</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Integers/">Integers</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+<ul id="article-nav" class="nav nav-pills nav-justified">
+  
+  <li role="presentation">
+    <a href="/public/2016/02/06/DateTime2/" id="article-nav-older" class="article-nav-link-wrap">
+      <i class="fa fa-chevron-left pull-left"></i>
+      <span class="article-nav-link-title">Which Datetime Data Type?</span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+
+  
 </article>
 
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/06/DateTime2/">Which Datetime Data Type?</a>
-    </h1>
-  
 
-
-    <div class="article-datetime">
-  <a href="/public/2016/02/06/DateTime2/" class="archive-article-date"><time datetime="2016-02-06T20:08:02.000Z" itemprop="datePublished">February 6th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-  
-    </div></section>
-  
-
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
 
 
 
@@ -224,11 +283,13 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'datawarlord';
   
+  var disqus_url = 'http://datawarlord.github.io/public/2016/02/12/Integers/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
