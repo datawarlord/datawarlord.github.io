@@ -3,17 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tag: SQL Server | The Data Warlord</title>
+  <title>BitsNLookups | The Data Warlord</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="The Data Warlord">
-<meta property="og:url" content="http://datawarlord.github.io/public/tags/SQL-Server/index.html">
+  <meta name="description" content="Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just on">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BitsNLookups">
+<meta property="og:url" content="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/index.html">
 <meta property="og:site_name" content="The Data Warlord">
-<meta property="og:description">
+<meta property="og:description" content="Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just on">
+<meta property="og:image" content="http://datawarlord.github.io/public/images/bitnlookup.PNG">
+<meta property="og:updated_time" content="2016-03-04T22:49:42.324Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="The Data Warlord">
-<meta name="twitter:description">
+<meta name="twitter:title" content="BitsNLookups">
+<meta name="twitter:description" content="Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just on">
 <meta name="twitter:creator" content="@syxxpac023">
   
     <link rel="alternate" href="/atom.xml" title="The Data Warlord" type="application/atom+xml">
@@ -94,81 +96,86 @@ ga('send', 'pageview');
 
     <div class="row">
         <div class="col-sm-8 blog-main">
-          
-  
-  
+          <article id="post-BitsNLookups" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
     
+  
+    <h1 class="article-title" itemprop="name">
+      BitsNLookups
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/public/2016/03/04/BitsNLookups/" class="article-date"><time datetime="2016-03-04T22:11:58.000Z" itemprop="datePublished">2016-03-04</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just one very brief moment away from a rant.  Today, there was this:</p>
+<p><img src="images/bitnlookup.PNG" alt=""></p>
+<p>There are two issues here that are very bad SQL practice.</p>
+<p>The first is extremely obvious.  Why in the world would you insert Yes and No into a column when databases have supported booleans since the times of Christ (citation needed)?  So instead of storing this information in a bit column where you could actually store 8 bit columns for the (I feel very fair) price of 1 byte, the creator of the database (NOT ME!) instead chose to use a char(10).  A fixed width column with a width of 10 for a column that stores “Yes” or “No”.  That’s 10 bytes for something that could be stored with 1 byte.  Depending on this column is used this can be a major drag querying for rows with Yes versus 1.  Just a total waste of space and energy.</p>
+<p>The second is less obvious given the information in the image but after I dug in a little further it was obvious that this was place for a lookup table that is going to store about 8 values.  Instead, we are left with single character that may meant something to the original database creator (SERIOUSLY… it wasn’t me) but they don’t mean anything to someone coming in later (THAT’s me).  The characters most likely map to an enumeration on the front-end of the application.  This means that if we ever need to change any of these values or add a new value that we’ll have to recompile and/or redeploy the application. Instead, if we used a foreign key reference to a lookup table table, we would know what every value meant, would be able to add or change much easier, and again querying would be brisker and less intesive.  We wouldn’t be wasting space storing that letter.  Again, this column is a char(10) that is 10 bytes where a tinyint could store the reference for 1 byte along with a lookup table would be quite small as well.  </p>
+<p>Up next… Key duplication everywhere!  Stop it.</p>
+
+      
+    </div>
+
     
       
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/" data-id="cile9n4dt0009vowk9y2qoxqw" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/public/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
+        <a href="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/#disqus_thread" class="article-comment-link">
+          <i class="fa fa-comment"></i> Comments
+        </a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Best-Practices/">Best Practices</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Data-Types/">Data Types</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
+
+
+    </footer>
+  </div>
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/03/04/BitsNLookups/">BitsNLookups</a>
-    </h1>
+    
+<ul id="article-nav" class="nav nav-pills nav-justified">
   
+  <li role="presentation">
+    <a href="/public/2016/02/12/Integers/" id="article-nav-older" class="article-nav-link-wrap">
+      <i class="fa fa-chevron-left pull-left"></i>
+      <span class="article-nav-link-title">Integers</span>
+    </a>
+  </li>
+  
+  
+</ul>
 
 
-    <div class="article-datetime">
-  <a href="/public/2016/03/04/BitsNLookups/" class="archive-article-date"><time datetime="2016-03-04T22:11:58.000Z" itemprop="datePublished">March 4th</time></a>
-</div>
-
-  </header>
+  
 </article>
 
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/12/Integers/">Integers</a>
-    </h1>
-  
 
-
-    <div class="article-datetime">
-  <a href="/public/2016/02/12/Integers/" class="archive-article-date"><time datetime="2016-02-12T23:07:49.000Z" itemprop="datePublished">February 12th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/06/DateTime2/">Which Datetime Data Type?</a>
-    </h1>
-  
-
-
-    <div class="article-datetime">
-  <a href="/public/2016/02/06/DateTime2/" class="archive-article-date"><time datetime="2016-02-06T20:08:02.000Z" itemprop="datePublished">February 6th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-  
-    </div></section>
-  
-
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
 
 
 
@@ -248,11 +255,13 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'datawarlord';
   
+  var disqus_url = 'http://datawarlord.github.io/public/2016/03/04/BitsNLookups/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
