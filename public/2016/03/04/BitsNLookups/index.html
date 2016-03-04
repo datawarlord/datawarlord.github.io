@@ -11,8 +11,8 @@
 <meta property="og:url" content="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/index.html">
 <meta property="og:site_name" content="The Data Warlord">
 <meta property="og:description" content="Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just on">
-<meta property="og:image" content="http://datawarlord.github.io/public/images/bitnlookup.PNG">
-<meta property="og:updated_time" content="2016-03-04T22:49:42.324Z">
+<meta property="og:image" content="http://datawarlord.github.io/public/public/images/bitnlookup.PNG">
+<meta property="og:updated_time" content="2016-03-04T23:00:12.930Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BitsNLookups">
 <meta name="twitter:description" content="Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just on">
@@ -123,7 +123,7 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>Today’s post might just be more of a rant than anything but really when you’ve had to deal with some of the data models that I’ve spent my last 22 months working with then you’re really always just one very brief moment away from a rant.  Today, there was this:</p>
-<p><img src="images/bitnlookup.PNG" alt=""></p>
+<p><img src="/public/images/bitnlookup.PNG" alt=""></p>
 <p>There are two issues here that are very bad SQL practice.</p>
 <p>The first is extremely obvious.  Why in the world would you insert Yes and No into a column when databases have supported booleans since the times of Christ (citation needed)?  So instead of storing this information in a bit column where you could actually store 8 bit columns for the (I feel very fair) price of 1 byte, the creator of the database (NOT ME!) instead chose to use a char(10).  A fixed width column with a width of 10 for a column that stores “Yes” or “No”.  That’s 10 bytes for something that could be stored with 1 byte.  Depending on this column is used this can be a major drag querying for rows with Yes versus 1.  Just a total waste of space and energy.</p>
 <p>The second is less obvious given the information in the image but after I dug in a little further it was obvious that this was place for a lookup table that is going to store about 8 values.  Instead, we are left with single character that may meant something to the original database creator (SERIOUSLY… it wasn’t me) but they don’t mean anything to someone coming in later (THAT’s me).  The characters most likely map to an enumeration on the front-end of the application.  This means that if we ever need to change any of these values or add a new value that we’ll have to recompile and/or redeploy the application. Instead, if we used a foreign key reference to a lookup table table, we would know what every value meant, would be able to add or change much easier, and again querying would be brisker and less intesive.  We wouldn’t be wasting space storing that letter.  Again, this column is a char(10) that is 10 bytes where a tinyint could store the reference for 1 byte along with a lookup table would be quite small as well.  </p>
