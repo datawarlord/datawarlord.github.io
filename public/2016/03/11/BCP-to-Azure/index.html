@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tag: SQL Server | The Data Warlord</title>
+  <title>BCP to Azure | The Data Warlord</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="The Data Warlord">
-<meta property="og:url" content="http://datawarlord.github.io/public/tags/SQL-Server/index.html">
+  <meta name="description" content="I’m going to take break from ranting about database best practices to show something I had to learn how to do recently.  This past week we successfully migrated one of our on-premise applications to b">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BCP to Azure">
+<meta property="og:url" content="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/index.html">
 <meta property="og:site_name" content="The Data Warlord">
-<meta property="og:description">
+<meta property="og:description" content="I’m going to take break from ranting about database best practices to show something I had to learn how to do recently.  This past week we successfully migrated one of our on-premise applications to b">
+<meta property="og:updated_time" content="2016-03-11T18:11:55.376Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="The Data Warlord">
-<meta name="twitter:description">
+<meta name="twitter:title" content="BCP to Azure">
+<meta name="twitter:description" content="I’m going to take break from ranting about database best practices to show something I had to learn how to do recently.  This past week we successfully migrated one of our on-premise applications to b">
 <meta name="twitter:creator" content="@syxxpac023">
   
     <link rel="alternate" href="/atom.xml" title="The Data Warlord" type="application/atom+xml">
@@ -94,101 +95,117 @@ ga('send', 'pageview');
 
     <div class="row">
         <div class="col-sm-8 blog-main">
-          
-  
-  
+          <article id="post-BCP-to-Azure" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
     
+  
+    <h1 class="article-title" itemprop="name">
+      BCP to Azure
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/public/2016/03/11/BCP-to-Azure/" class="article-date"><time datetime="2016-03-11T23:08:10.000Z" itemprop="datePublished">2016-03-11</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>I’m going to take break from ranting about database best practices to show something I had to learn how to do recently.  This past week we successfully migrated one of our on-premise applications to be completely hosted in the Azure and that includes the database being in SQL Azure.  This is very exciting for a multitude of reasons including the opportunity to fix the data model, getting the bulk of the maintenance type tasks moved out of my purview, scalability, high availability, cost, and (most importantly) because it’s cool.  The first challenge I was set to face though was how to get our data from our on-premise database to Azure.  In this case, we weren’t really talking about thousands of gigabytes of data.  For this application, there were just six tables of data containing about 200,000 rows total that needed to be copied up and then transformed into our new data format.  For the purposes of this post, we’re just going to focus on how I got the data from on-premise to Azure.  This could be accomplished in a command line script, in SQL Server Management Studio using (<a href="https://msdn.microsoft.com/en-us/library/ms175046.aspx" target="_blank" rel="external">xp_cmdshell</a>), or inside an SSIS package.</p>
+<p>The natural inclination was to first copy the data up using a linked server:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">insert</span> <span class="keyword">into</span> AzureServer.AzureDB.dbo.AzureTable</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> OnPremiseDB.dbo.OnPremiseTable</span></span><br></pre></td></tr></table></figure>
+<p>Unfortunately, this would timeout after sprinning for 30-45 minutes from within Management Studio.  So the clear option became a bulk insert.  But how to accomplish this with Azure involved?</p>
+<p><strong>1) Export Data from Current DB</strong><br>First let’s use BCP to export the data out of the current database.  Obviously substitute in your own database, table, and filename.    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bcp DBName.dbo.TableName out &#34;C:\Path\filename.txt&#34; -c -T</span><br></pre></td></tr></table></figure>
+<p>The pertinent options here are (and remember case matters):</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-c</td>
+<td>Performs the oepration using a character data type rather than prompting for a data type for each field.  Using the char data type without prefixes and with a tab character (\t) as the field and newline character (\r\n) as the row terminator</td>
+</tr>
+<tr>
+<td>-T</td>
+<td>connect using integrated security (Trusted Connection)</td>
+</tr>
+<tr>
+<td>-U</td>
+<td>Login ID, if you’re not connecting using a trusted connection</td>
+</tr>
+<tr>
+<td>-P</td>
+<td>Password, if you’re not connecting using a trusted connection</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2) Create Table Structure in Azure</strong><br>  Be sure the empty table already exists in Azure.  If there are identity fields that are used for foreign keys then you’ll need to make sure you turn on identity insert to ensure you don’t get these keys out of sync or just set the columns to not be identity columns at all since these tables are just temporary. The tables should have the same structure and table types as the table data you’re importing of course.  If you’re importing a query then make sure you get this table formatted so that the query result matches the table structure sa well.</p>
+<p><strong>3) Push Data into Azure</strong><br>Now we’ll use BCP to push the data from the text file into the Azure tables you created.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bcp AzureDB.dbo.AzureTable In "C:\Path\filename.txt" </span><br><span class="line">  -S srvName.database.windows.net; -U userName@srvName -P password -c'</span><br></pre></td></tr></table></figure>
+<p>The options here are the same.  The key is that your Azure servername must also be in your userName.  From here you are able to do whatever is necessary to make your data do what you need it to in the cloud.</p>
+
+      
+    </div>
+
     
       
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/" data-id="cilnz8pul0009lkwkmsfksby4" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/public/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
+        <a href="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/#disqus_thread" class="article-comment-link">
+          <i class="fa fa-comment"></i> Comments
+        </a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Azure/">Azure</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Bulk-Insert/">Bulk Insert</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Cloud/">Cloud</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Migration/">Migration</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Azure/">SQL Azure</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
+
+
+    </footer>
+  </div>
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/03/11/BCP-to-Azure/">BCP to Azure</a>
-    </h1>
+    
+<ul id="article-nav" class="nav nav-pills nav-justified">
   
+  <li role="presentation">
+    <a href="/public/2016/03/04/BitsNLookups/" id="article-nav-older" class="article-nav-link-wrap">
+      <i class="fa fa-chevron-left pull-left"></i>
+      <span class="article-nav-link-title">BitsNLookups</span>
+    </a>
+  </li>
+  
+  
+</ul>
 
 
-    <div class="article-datetime">
-  <a href="/public/2016/03/11/BCP-to-Azure/" class="archive-article-date"><time datetime="2016-03-11T23:08:10.000Z" itemprop="datePublished">March 11th</time></a>
-</div>
-
-  </header>
+  
 </article>
 
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/03/04/BitsNLookups/">BitsNLookups</a>
-    </h1>
-  
 
-
-    <div class="article-datetime">
-  <a href="/public/2016/03/04/BitsNLookups/" class="archive-article-date"><time datetime="2016-03-04T22:11:58.000Z" itemprop="datePublished">March 4th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/12/Integers/">Integers</a>
-    </h1>
-  
-
-
-    <div class="article-datetime">
-  <a href="/public/2016/02/12/Integers/" class="archive-article-date"><time datetime="2016-02-12T23:07:49.000Z" itemprop="datePublished">February 12th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <header class="archive-article-header">
-    
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/public/2016/02/06/DateTime2/">Which Datetime Data Type?</a>
-    </h1>
-  
-
-
-    <div class="article-datetime">
-  <a href="/public/2016/02/06/DateTime2/" class="archive-article-date"><time datetime="2016-02-06T20:08:02.000Z" itemprop="datePublished">February 6th</time></a>
-</div>
-
-  </header>
-</article>
-
-  
-  
-    </div></section>
-  
-
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
 
 
 
@@ -272,11 +289,13 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'datawarlord';
   
+  var disqus_url = 'http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
