@@ -96,6 +96,72 @@ ga('send', 'pageview');
         <div class="col-sm-8 blog-main">
           
   
+    <article id="post-Overboard-with-Foreign-Keys" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/public/2016/03/20/Overboard-with-Foreign-Keys/">Overboard with Foreign Keys</a>
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/public/2016/03/20/Overboard-with-Foreign-Keys/" class="article-date"><time datetime="2016-03-21T00:39:15.000Z" itemprop="datePublished">2016-03-20</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>It’s truly one of the great ironies of my profession that I spend so much time getting developers (or those pretending to be) to use foreign keys and then for my next problem to be that they’ve overdone it by a mile.  Just for a quick example of something I’ve seen often, can you see what’s wrong with the model below:</p>
+<p><img src="/public/images/badModel.png" alt=""></p>
+<p>The assumptions I’m going to make for the purposes of this example are that the Orders and OrderLineItems are a parent and child, one to many relationship and that the Customers table relationship to Orders is also one-to-many.  Also, we’re doing Online Transaction Processing (OLTP) and not Online Analytical Processing (OLAP).  These rules go out the window in an analytics cube.  In this case, the link from OrderDetails to Customers is unnecessary.  The customerID can be obtained be obtained from the parent order stored in the Orders.  Reasons to omit this extra key include:</p>
+<ul>
+<li>Unnecessary data storage; the data in the foreign key is duplicated </li>
+<li>Extra foreign keys will slow down inserts and updates</li>
+<li>If for any reason the order is ever moved to another customer, the line items will also have to be updated creating extra work for you.</li>
+<li>Runs counter to database normalization </li>
+</ul>
+<p>The real cost doesn’t come in this being in one table but when you expand across a database(s) full of this type of bad modeling practices (and those involving data types that I wrote about in previous blogs, and yes I’ve seen both at the same time).  Moving an order to a different customer (as in this example) could suddenly involve dozens of tables because payment and inventory transactions could also include the customer information instead of all information flowing up through the relations created in the database.  Instead, in the model I am suggesting, changing the customerID of the Orders table would be the only change required.</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/" data-id="cilwth41a0009n0wkk4w3s511" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+        <a href="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/#disqus_thread" class="article-comment-link">
+          <i class="fa fa-comment"></i> Comments
+        </a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Foreign-Keys/">Foreign Keys</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Relational-Data-Modeling/">Relational Data Modeling</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-BCP-to-Azure" class="article article-type-post" itemscope itemprop="blogPost">
 
   <header class="article-header">
@@ -169,7 +235,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/" data-id="cilnz8pul0009lkwkmsfksby4" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/" data-id="cilwth41a000fn0wkuvdnsbbc" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -231,7 +297,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/" data-id="cilnz8pur000jlkwk8sk6wrsf" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/" data-id="cilwth41q000rn0wkpvoupnto" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -326,7 +392,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/02/12/Integers/" data-id="cilnz8puu000nlkwkexon5k6b" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/02/12/Integers/" data-id="cilwth41q000vn0wkpnt92fwh" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -437,7 +503,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/02/06/DateTime2/" data-id="cilnz8pu20000lkwk2sfr7qrs" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/02/06/DateTime2/" data-id="cilwth40v0000n0wkpgsiiphu" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -477,7 +543,7 @@ ga('send', 'pageview');
   
   <div class="sidebar-module">
     <h4>Tags</h4>
-    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Azure/">Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Best-Practices/">Best Practices</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Bulk-Insert/">Bulk Insert</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Cloud/">Cloud</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Data-Types/">Data Types</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/DateTime/">DateTime</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Integers/">Integers</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Migration/">Migration</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Azure/">SQL Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Server/">SQL Server</a><span class="sidebar-module-list-count">4</span></li></ul>
+    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Azure/">Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Best-Practices/">Best Practices</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Bulk-Insert/">Bulk Insert</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Cloud/">Cloud</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Data-Types/">Data Types</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/DateTime/">DateTime</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Foreign-Keys/">Foreign Keys</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Integers/">Integers</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Migration/">Migration</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Relational-Data-Modeling/">Relational Data Modeling</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Azure/">SQL Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Server/">SQL Server</a><span class="sidebar-module-list-count">5</span></li></ul>
   </div>
 
 
@@ -486,7 +552,7 @@ ga('send', 'pageview');
   <div class="sidebar-module">
     <h4>Tag Cloud</h4>
     <p class="tagcloud">
-      <a href="/public/tags/Azure/" style="font-size: 10px;">Azure</a> <a href="/public/tags/Best-Practices/" style="font-size: 15px;">Best Practices</a> <a href="/public/tags/Bulk-Insert/" style="font-size: 10px;">Bulk Insert</a> <a href="/public/tags/Cloud/" style="font-size: 10px;">Cloud</a> <a href="/public/tags/Data-Types/" style="font-size: 15px;">Data Types</a> <a href="/public/tags/DateTime/" style="font-size: 10px;">DateTime</a> <a href="/public/tags/Integers/" style="font-size: 10px;">Integers</a> <a href="/public/tags/Migration/" style="font-size: 10px;">Migration</a> <a href="/public/tags/SQL-Azure/" style="font-size: 10px;">SQL Azure</a> <a href="/public/tags/SQL-Server/" style="font-size: 20px;">SQL Server</a>
+      <a href="/public/tags/Azure/" style="font-size: 10px;">Azure</a> <a href="/public/tags/Best-Practices/" style="font-size: 15px;">Best Practices</a> <a href="/public/tags/Bulk-Insert/" style="font-size: 10px;">Bulk Insert</a> <a href="/public/tags/Cloud/" style="font-size: 10px;">Cloud</a> <a href="/public/tags/Data-Types/" style="font-size: 15px;">Data Types</a> <a href="/public/tags/DateTime/" style="font-size: 10px;">DateTime</a> <a href="/public/tags/Foreign-Keys/" style="font-size: 10px;">Foreign Keys</a> <a href="/public/tags/Integers/" style="font-size: 10px;">Integers</a> <a href="/public/tags/Migration/" style="font-size: 10px;">Migration</a> <a href="/public/tags/Relational-Data-Modeling/" style="font-size: 10px;">Relational Data Modeling</a> <a href="/public/tags/SQL-Azure/" style="font-size: 10px;">SQL Azure</a> <a href="/public/tags/SQL-Server/" style="font-size: 20px;">SQL Server</a>
     </p>
   </div>
 
@@ -494,7 +560,7 @@ ga('send', 'pageview');
   
   <div class="sidebar-module">
     <h4>Archives</h4>
-    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/03/">March 2016</a><span class="sidebar-module-list-count">2</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/02/">February 2016</a><span class="sidebar-module-list-count">2</span></li></ul>
+    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/03/">March 2016</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/02/">February 2016</a><span class="sidebar-module-list-count">2</span></li></ul>
   </div>
 
 
@@ -503,6 +569,10 @@ ga('send', 'pageview');
   <div class="sidebar-module">
     <h4>Recents</h4>
     <ul class="sidebar-module-list">
+      
+        <li>
+          <a href="/public/2016/03/20/Overboard-with-Foreign-Keys/">Overboard with Foreign Keys</a>
+        </li>
       
         <li>
           <a href="/public/2016/03/11/BCP-to-Azure/">BCP to Azure</a>
