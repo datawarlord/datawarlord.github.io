@@ -96,6 +96,87 @@ ga('send', 'pageview');
         <div class="col-sm-8 blog-main">
           
   
+    <article id="post-IndexIncludes" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/public/2016/07/30/IndexIncludes/">Index Includes</a>
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/public/2016/07/30/IndexIncludes/" class="article-date"><time datetime="2016-07-30T16:18:12.000Z" itemprop="datePublished">2016-07-30</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Understanding indexing is a major key to understanding how to speed up reads on your database.  </p>
+<p><strong>A quick review of  basic index architectures in SQL Server </strong><br>1)  Clustered Indexes</p>
+<pre><code>- Physical order of the table storage
+- Only one per table
+- Can greatly increase speed of retrieval of data 
+- Typically index is on primary key
+- Table without a primary key is called a heap
+</code></pre><p>2) Nonclustered Indexes</p>
+<pre><code>- Specifies logical ordering of rows with the index keys in sorted order with pointers to primary keys
+- Indexed columns are typically used in JOINS, WHERE, and ORDER BY clauses
+- Can also be filtered to speed up queries where a large subset of data is often omitted (EX: open orders, active items, etc.)
+</code></pre><p>3) Full Text</p>
+<pre><code>- Allows indexing across multiple columns
+- Allows search for word forms (octopus, octopi, octopod)
+- Key lookup is performed to return results.
+</code></pre><p><strong>What are included columns?</strong><br>Included columns (includes) are nonkey columns added to a nonclustered index to improve performance.  This allows the query optimizer to locate all the column values need within the index without the need to perform a key lookup back to the table or clustered index.  This results in fewer disk I/O operations and faster performance.</p>
+<p><strong>Example</strong></p>
+<p>For this example we’ll be using two tables.  One is an order information table named Orders which has a foreign key relationship to a customer information table named Customers.  The Orders table contains roughly 1.7 million rows while the Customers table contains about 500,000 rows.  The query we’re going to be working with is:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select &#9;  orders.orderDate&#10;&#9;&#9;, orders.orderTotal&#10;&#9;&#9;, customer.FirstName&#10;&#9;&#9;, customer.Lastname&#10;From orders&#10;&#9;inner join customers on orders.customerID = customer.customerID&#10;Where orders.customerID = 660104</span><br></pre></td></tr></table></figure>
+<p>For the first run, we’re going to have just a simple index placed on the customer ID column of the orders table.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE NONCLUSTERED INDEX IX_Orders_CustomerID on Orders (CustomerID)</span><br></pre></td></tr></table></figure>
+<p>This results in the execution plan below which shows a key lookup back to the clustered index of the Orders table. The index that is being searched has two columns: CustomerID and OrderID.  To obtain additional columns from the Orders table, the OrderID is used and a key look up is performed.  This query took 12 ms to complete.<br><img src="/public/images/NoCover.png" alt=""></p>
+<p>Now, let’s try again but this time including all the columns that are going to be returned in the query.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE NONCLUSTERED INDEX IX_Orders_CustomerID on Orders (CustomerID)&#10;INCLUDE (orderDate, OrderTotal)</span><br></pre></td></tr></table></figure></p>
+<p>Now the query optimizer won’t need to perform a key lookup.  The index contains OrderID, CustomerID, OrderDate, and Order Total.  Everything that is needed from the Orders table is already there so we can avoid the extra lookup.  This query only took 9 ms to complete (25% improvement) and the execution plan is below:<br><img src="/public/images/Cover.png" alt=""></p>
+<p>There is a lot to consider when adding an index to a table.  In a future post, I’ll go over those considerations and how to make the correct decisions.</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://datawarlord.github.io/public/2016/07/30/IndexIncludes/" data-id="cir9fu9mn0009nswkrz440zv3" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+        <a href="http://datawarlord.github.io/public/2016/07/30/IndexIncludes/#disqus_thread" class="article-comment-link">
+          <i class="fa fa-comment"></i> Comments
+        </a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Includes/">Includes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Index/">Index</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Indexing/">Indexing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Optimization/">Optimization</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-Overboard-with-Foreign-Keys" class="article article-type-post" itemscope itemprop="blogPost">
 
   <header class="article-header">
@@ -142,7 +223,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/" data-id="cilwth41a0009n0wkk4w3s511" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/" data-id="cir9fu9ms000jnswknlqcld5f" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -235,7 +316,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/" data-id="cilwth41a000fn0wkuvdnsbbc" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/03/11/BCP-to-Azure/" data-id="cir9fu9mx000pnswkgcarmd8o" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -297,7 +378,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/" data-id="cilwth41q000rn0wkpvoupnto" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/03/04/BitsNLookups/" data-id="cir9fu9n50011nswkp7fj8f9n" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -392,7 +473,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/02/12/Integers/" data-id="cilwth41q000vn0wkpnt92fwh" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/02/12/Integers/" data-id="cir9fu9n90015nswkmhea9n76" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -503,7 +584,7 @@ ga('send', 'pageview');
     
 
     <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/02/06/DateTime2/" data-id="cilwth40v0000n0wkpgsiiphu" class="article-share-link">
+      <a data-url="http://datawarlord.github.io/public/2016/02/06/DateTime2/" data-id="cir9fu9m20000nswk92bovbce" class="article-share-link">
         <i class="fa fa-share"></i> Share
       </a>
       
@@ -543,7 +624,7 @@ ga('send', 'pageview');
   
   <div class="sidebar-module">
     <h4>Tags</h4>
-    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Azure/">Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Best-Practices/">Best Practices</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Bulk-Insert/">Bulk Insert</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Cloud/">Cloud</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Data-Types/">Data Types</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/DateTime/">DateTime</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Foreign-Keys/">Foreign Keys</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Integers/">Integers</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Migration/">Migration</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Relational-Data-Modeling/">Relational Data Modeling</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Azure/">SQL Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Server/">SQL Server</a><span class="sidebar-module-list-count">5</span></li></ul>
+    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Azure/">Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Best-Practices/">Best Practices</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Bulk-Insert/">Bulk Insert</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Cloud/">Cloud</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Data-Types/">Data Types</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/DateTime/">DateTime</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Foreign-Keys/">Foreign Keys</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Includes/">Includes</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Index/">Index</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Indexing/">Indexing</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Integers/">Integers</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Migration/">Migration</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Optimization/">Optimization</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/Relational-Data-Modeling/">Relational Data Modeling</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Azure/">SQL Azure</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/tags/SQL-Server/">SQL Server</a><span class="sidebar-module-list-count">6</span></li></ul>
   </div>
 
 
@@ -552,7 +633,7 @@ ga('send', 'pageview');
   <div class="sidebar-module">
     <h4>Tag Cloud</h4>
     <p class="tagcloud">
-      <a href="/public/tags/Azure/" style="font-size: 10px;">Azure</a> <a href="/public/tags/Best-Practices/" style="font-size: 15px;">Best Practices</a> <a href="/public/tags/Bulk-Insert/" style="font-size: 10px;">Bulk Insert</a> <a href="/public/tags/Cloud/" style="font-size: 10px;">Cloud</a> <a href="/public/tags/Data-Types/" style="font-size: 15px;">Data Types</a> <a href="/public/tags/DateTime/" style="font-size: 10px;">DateTime</a> <a href="/public/tags/Foreign-Keys/" style="font-size: 10px;">Foreign Keys</a> <a href="/public/tags/Integers/" style="font-size: 10px;">Integers</a> <a href="/public/tags/Migration/" style="font-size: 10px;">Migration</a> <a href="/public/tags/Relational-Data-Modeling/" style="font-size: 10px;">Relational Data Modeling</a> <a href="/public/tags/SQL-Azure/" style="font-size: 10px;">SQL Azure</a> <a href="/public/tags/SQL-Server/" style="font-size: 20px;">SQL Server</a>
+      <a href="/public/tags/Azure/" style="font-size: 10px;">Azure</a> <a href="/public/tags/Best-Practices/" style="font-size: 15px;">Best Practices</a> <a href="/public/tags/Bulk-Insert/" style="font-size: 10px;">Bulk Insert</a> <a href="/public/tags/Cloud/" style="font-size: 10px;">Cloud</a> <a href="/public/tags/Data-Types/" style="font-size: 15px;">Data Types</a> <a href="/public/tags/DateTime/" style="font-size: 10px;">DateTime</a> <a href="/public/tags/Foreign-Keys/" style="font-size: 10px;">Foreign Keys</a> <a href="/public/tags/Includes/" style="font-size: 10px;">Includes</a> <a href="/public/tags/Index/" style="font-size: 10px;">Index</a> <a href="/public/tags/Indexing/" style="font-size: 10px;">Indexing</a> <a href="/public/tags/Integers/" style="font-size: 10px;">Integers</a> <a href="/public/tags/Migration/" style="font-size: 10px;">Migration</a> <a href="/public/tags/Optimization/" style="font-size: 10px;">Optimization</a> <a href="/public/tags/Relational-Data-Modeling/" style="font-size: 10px;">Relational Data Modeling</a> <a href="/public/tags/SQL-Azure/" style="font-size: 10px;">SQL Azure</a> <a href="/public/tags/SQL-Server/" style="font-size: 20px;">SQL Server</a>
     </p>
   </div>
 
@@ -560,7 +641,7 @@ ga('send', 'pageview');
   
   <div class="sidebar-module">
     <h4>Archives</h4>
-    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/03/">March 2016</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/02/">February 2016</a><span class="sidebar-module-list-count">2</span></li></ul>
+    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/07/">July 2016</a><span class="sidebar-module-list-count">1</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/03/">March 2016</a><span class="sidebar-module-list-count">3</span></li><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/public/archives/2016/02/">February 2016</a><span class="sidebar-module-list-count">2</span></li></ul>
   </div>
 
 
@@ -569,6 +650,10 @@ ga('send', 'pageview');
   <div class="sidebar-module">
     <h4>Recents</h4>
     <ul class="sidebar-module-list">
+      
+        <li>
+          <a href="/public/2016/07/30/IndexIncludes/">Index Includes</a>
+        </li>
       
         <li>
           <a href="/public/2016/03/20/Overboard-with-Foreign-Keys/">Overboard with Foreign Keys</a>
@@ -584,10 +669,6 @@ ga('send', 'pageview');
       
         <li>
           <a href="/public/2016/02/12/Integers/">Integers</a>
-        </li>
-      
-        <li>
-          <a href="/public/2016/02/06/DateTime2/">Which Datetime Data Type?</a>
         </li>
       
     </ul>

@@ -3,19 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Overboard with Foreign Keys | The Data Warlord</title>
+  <title>Tag: Optimization | The Data Warlord</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="It’s truly one of the great ironies of my profession that I spend so much time getting developers (or those pretending to be) to use foreign keys and then for my next problem to be that they’ve overdo">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Overboard with Foreign Keys">
-<meta property="og:url" content="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/index.html">
+  <meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Data Warlord">
+<meta property="og:url" content="http://datawarlord.github.io/public/tags/Optimization/index.html">
 <meta property="og:site_name" content="The Data Warlord">
-<meta property="og:description" content="It’s truly one of the great ironies of my profession that I spend so much time getting developers (or those pretending to be) to use foreign keys and then for my next problem to be that they’ve overdo">
-<meta property="og:image" content="http://datawarlord.github.io/public/public/images/badModel.png">
-<meta property="og:updated_time" content="2016-03-24T20:35:41.147Z">
+<meta property="og:description">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Overboard with Foreign Keys">
-<meta name="twitter:description" content="It’s truly one of the great ironies of my profession that I spend so much time getting developers (or those pretending to be) to use foreign keys and then for my next problem to be that they’ve overdo">
+<meta name="twitter:title" content="The Data Warlord">
+<meta name="twitter:description">
 <meta name="twitter:creator" content="@syxxpac023">
   
     <link rel="alternate" href="/atom.xml" title="The Data Warlord" type="application/atom+xml">
@@ -96,97 +94,41 @@ ga('send', 'pageview');
 
     <div class="row">
         <div class="col-sm-8 blog-main">
-          <article id="post-Overboard-with-Foreign-Keys" class="article article-type-post" itemscope itemprop="blogPost">
-
-  <header class="article-header">
+          
+  
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/public/archives/2016" class="archive-year">2016</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <header class="archive-article-header">
     
   
-    <h1 class="article-title" itemprop="name">
-      Overboard with Foreign Keys
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/public/2016/07/30/IndexIncludes/">Index Includes</a>
     </h1>
   
 
 
-  </header>
-
-  <div class="article-meta">
     <div class="article-datetime">
-  <a href="/public/2016/03/20/Overboard-with-Foreign-Keys/" class="article-date"><time datetime="2016-03-21T00:39:15.000Z" itemprop="datePublished">2016-03-20</time></a>
+  <a href="/public/2016/07/30/IndexIncludes/" class="archive-article-date"><time datetime="2016-07-30T16:18:12.000Z" itemprop="datePublished">July 30th</time></a>
 </div>
 
-    
-    
-
-  </div>
-  <div class="article-inner">
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>It’s truly one of the great ironies of my profession that I spend so much time getting developers (or those pretending to be) to use foreign keys and then for my next problem to be that they’ve overdone it by a mile.  Just for a quick example of something I’ve seen often, can you see what’s wrong with the model below:</p>
-<p><img src="/public/images/badModel.png" alt=""></p>
-<p>The assumptions I’m going to make for the purposes of this example are that the Orders and OrderLineItems are a parent and child, one to many relationship and that the Customers table relationship to Orders is also one-to-many.  Also, we’re doing Online Transaction Processing (OLTP) and not Online Analytical Processing (OLAP).  These rules go out the window in an analytics cube.  In this case, the link from OrderDetails to Customers is unnecessary.  The customerID can be obtained be obtained from the parent order stored in the Orders.  Reasons to omit this extra key include:</p>
-<ul>
-<li>Unnecessary data storage; the data in the foreign key is duplicated </li>
-<li>Extra foreign keys will slow down inserts and updates</li>
-<li>If for any reason the order is ever moved to another customer, the line items will also have to be updated creating extra work for you.</li>
-<li>Runs counter to database normalization </li>
-</ul>
-<p>The real cost doesn’t come in this being in one table but when you expand across a database(s) full of this type of bad modeling practices (and those involving data types that I wrote about in previous blogs, and yes I’ve seen both at the same time).  Moving an order to a different customer (as in this example) could suddenly involve dozens of tables because payment and inventory transactions could also include the customer information instead of all information flowing up through the relations created in the database.  Instead, in the model I am suggesting, changing the customerID of the Orders table would be the only change required.</p>
-
-      
-    </div>
-
-    
-      
-
-    
-
-    <footer class="article-footer">
-      <a data-url="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/" data-id="cir9fu9ms000jnswknlqcld5f" class="article-share-link">
-        <i class="fa fa-share"></i> Share
-      </a>
-      
-        <a href="http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/#disqus_thread" class="article-comment-link">
-          <i class="fa fa-comment"></i> Comments
-        </a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Foreign-Keys/">Foreign Keys</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/Relational-Data-Modeling/">Relational Data Modeling</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/public/tags/SQL-Server/">SQL Server</a></li></ul>
-
-
-    </footer>
-  </div>
-  
-    
-<ul id="article-nav" class="nav nav-pills nav-justified">
-  
-  <li role="presentation">
-    <a href="/public/2016/03/11/BCP-to-Azure/" id="article-nav-older" class="article-nav-link-wrap">
-      <i class="fa fa-chevron-left pull-left"></i>
-      <span class="article-nav-link-title">BCP to Azure</span>
-    </a>
-  </li>
-  
-  
-  <li role="presentation">
-    <a href="/public/2016/07/30/IndexIncludes/" id="article-nav-newer" class="article-nav-link-wrap">
-      <span class="article-nav-link-title">Index Includes</span>
-      <i class="fa fa-chevron-right pull-right"></i>
-    </a>
-  </li>
-  
-</ul>
-
-
-  
+  </header>
 </article>
 
+  
+  
+    </div></section>
+  
 
-<section id="comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
 
 
 
@@ -274,13 +216,11 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'datawarlord';
   
-  var disqus_url = 'http://datawarlord.github.io/public/2016/03/20/Overboard-with-Foreign-Keys/';
-  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
